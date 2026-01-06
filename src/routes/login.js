@@ -1,20 +1,9 @@
+// src/routes/login.js
 import express from "express";
-import {
-  handleFailedLogin,
-  handleSuccessfulLogin,
-  checkIfBlocked
-} from "../services/loginAttemptService.js";
+import { login } from "../services/loginService.js";
 
 const router = express.Router();
 
-/**
- * LOGIN RUTA – SIMULACIJA
- *
- * Ne implementiramo pravi authentication sistem.
- * Hardcoded lozinka se koristi isključivo radi demonstracije:
- * - Redis logike (rate limit, blokade, TTL)
- * - kasnije Neo4j analize login obrazaca
- */
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -26,39 +15,12 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // 1️⃣ Provera da li je korisnik + IP blokiran
-    const blocked = await checkIfBlocked(username, ip);
-    if (blocked) {
-      return res.status(403).json({
-        message: "User temporarily blocked from this IP due to too many failed attempts"
-      });
-    }
+    const result = await login(username, password, ip);
 
-    /**
-     * 2️⃣ SIMULACIJA PROVERE LOZINKE
-     * U realnom sistemu:
-     * - lozinka bi se proveravala u bazi
-     * - koristio bi se hash (bcrypt, argon2)
-     *
-     * Ovde je svesno hardcoded radi jednostavnosti projekta
-     */
-    const CORRECT_PASSWORD = "secret123";
-
-    if (password !== CORRECT_PASSWORD) {
-      const result = await handleFailedLogin(username, ip);
-
-      return res.status(401).json({
-        message: "Invalid credentials",
-        attempts: result.attempts,
-        blocked: result.blocked
-      });
-    }
-
-    // 3️⃣ Uspešan login – reset pokušaja za username + IP
-    await handleSuccessfulLogin(username, ip);
-
-    return res.status(200).json({
-      message: "Login successful"
+    return res.status(result.status).json({
+      message: result.message,
+      ...(result.attempts !== undefined && { attempts: result.attempts }),
+      ...(result.blocked !== undefined && { blocked: result.blocked })
     });
 
   } catch (error) {
