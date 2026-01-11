@@ -3,6 +3,8 @@ import {
   handleSuccessfulLogin,
   checkIfBlocked
 } from "./loginAttemptService.js";
+import { logLoginAttempt } from "../neo4j/loginGraphService.js";
+
 
 /**
  * Centralna login logika
@@ -33,6 +35,8 @@ export async function login(username, password, ip) {
   if (password !== CORRECT_PASSWORD) {
     const result = await handleFailedLogin(username, ip);
 
+    await logLoginAttempt(username, ip, false);
+
     return {
       status: 401,
       message: "Invalid credentials",
@@ -43,6 +47,8 @@ export async function login(username, password, ip) {
 
   //  Uspesan login- reset Redis state-a
   await handleSuccessfulLogin(username, ip);
+
+  await logLoginAttempt(username, ip, true);
 
   return {
     status: 200,
