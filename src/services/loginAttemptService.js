@@ -1,7 +1,9 @@
 import {
   recordFailedLogin,
   isBlocked,
-  clearLoginAttempts
+  clearLoginAttempts,
+  recordFailedLoginByIp,
+  isIpBlocked
 } from "../redis/loginMonitor.js";
 
 export async function handleFailedLogin(username, ip) {
@@ -15,3 +17,11 @@ export async function checkIfBlocked(username, ip) {
 export async function handleSuccessfulLogin(username, ip) {
   await clearLoginAttempts(username, ip);
 }
+export async function handleFailedLoginByIp(ip) {
+  return await recordFailedLoginByIp(ip);
+}
+
+export async function checkIfIpBlocked(ip) {
+  return await isIpBlocked(ip);
+}
+

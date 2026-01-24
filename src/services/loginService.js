@@ -1,21 +1,29 @@
 import {
   handleFailedLogin,
   handleSuccessfulLogin,
-  checkIfBlocked
+  checkIfBlocked,
+  checkIfIpBlocked,
+  handleFailedLoginByIp
 } from "./loginAttemptService.js";
-import { logLoginAttempt } from "../neo4j/loginGraphService.js";
 
+import { logLoginAttempt } from "../neo4j/loginGraphService.js";
 
 /**
  * Centralna login logika
- * Ovde se kasnije kace:
- * - prava baza korisnika
- * - bcrypt / argon2
- * - Neo4j analiza ponasanja
+ * Monitoring hipotetičkog sistema
  */
 export async function login(username, password, ip) {
 
-  //  Provera blokade (username + IP)
+  //  Globalna IP blokada
+  const ipBlocked = await checkIfIpBlocked(ip);
+  if (ipBlocked) {
+    return {
+      status: 403,
+      message: "IP temporarily blocked due to suspicious activity"
+    };
+  }
+
+  //  User + IP blokada
   const blocked = await checkIfBlocked(username, ip);
   if (blocked) {
     return {
@@ -24,17 +32,13 @@ export async function login(username, password, ip) {
     };
   }
 
-  /**
-   *  SIMULACIJA AUTENTIFIKACIJE
-   * Kasnije:
-   * - fetch user from DB
-   * - bcrypt.compare(...)
-   */
+  //  SIMULACIJA AUTENTIFIKACIJE
   const CORRECT_PASSWORD = "secret123";
 
   if (password !== CORRECT_PASSWORD) {
     const result = await handleFailedLogin(username, ip);
 
+    await handleFailedLoginByIp(ip);
     await logLoginAttempt(username, ip, false);
 
     return {
@@ -45,9 +49,8 @@ export async function login(username, password, ip) {
     };
   }
 
-  //  Uspesan login- reset Redis state-a
+  //  Uspešan login
   await handleSuccessfulLogin(username, ip);
-
   await logLoginAttempt(username, ip, true);
 
   return {
