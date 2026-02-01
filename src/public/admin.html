@@ -8,9 +8,13 @@
       font-family: Arial;
       margin: 40px;
     }
+    h2 {
+      margin-top: 40px;
+    }
     table {
       border-collapse: collapse;
       width: 100%;
+      margin-bottom: 30px;
     }
     th, td {
       border: 1px solid #ccc;
@@ -24,8 +28,9 @@
 </head>
 <body>
 
-<h2>Blocked Logins</h2>
+<h1>Admin Dashboard</h1>
 
+<h2>Blocked Logins (Redis)</h2>
 <table>
   <thead>
     <tr>
@@ -34,7 +39,42 @@
       <th>TTL (seconds)</th>
     </tr>
   </thead>
-  <tbody id="table-body"></tbody>
+  <tbody id="blocked-body"></tbody>
+</table>
+
+<h2>IPs with Multiple Users (Neo4j)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>IP</th>
+      <th>Users</th>
+      <th>User Count</th>
+    </tr>
+  </thead>
+  <tbody id="ip-users-body"></tbody>
+</table>
+
+<h2>Users with Multiple IPs (Neo4j)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>IPs</th>
+      <th>IP Count</th>
+    </tr>
+  </thead>
+  <tbody id="user-ips-body"></tbody>
+</table>
+
+<h2>Suspicious IPs (Failed Logins)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>IP</th>
+      <th>Failures</th>
+    </tr>
+  </thead>
+  <tbody id="suspicious-body"></tbody>
 </table>
 
 <script src="admin.js"></script>
