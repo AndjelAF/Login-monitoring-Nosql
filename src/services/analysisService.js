@@ -1,4 +1,4 @@
-import driver from "./neo4jDriver.js";
+import driver from "../neo4j/neo4jDriver.js";
 
 /**
  * IP adrese koje su pokušale login za više korisnika

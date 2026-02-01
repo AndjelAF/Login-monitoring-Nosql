@@ -1,6 +1,8 @@
 import express from "express";
 import loginRoutes from "./routes/login.js";
 import adminRoutes from "./routes/admin.js";
+import adminAnalyticsRoutes from "./routes/adminAnalytics.js";
+
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -18,6 +20,7 @@ app.use(express.static(path.join(__dirname, "public")));
 //  API
 app.use("/api", loginRoutes);
 app.use("/admin", adminRoutes);
+app.use("/admin", adminAnalyticsRoutes);
 
 
 const PORT = 3000;
