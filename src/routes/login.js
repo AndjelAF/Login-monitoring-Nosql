@@ -9,7 +9,8 @@ const router = express.Router();
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-    const ip = req.ip;
+    const ip = req.headers["x-forwarded-for"] || req.ip;
+
 
     if (!username || !password) {
       return res.status(400).json({
