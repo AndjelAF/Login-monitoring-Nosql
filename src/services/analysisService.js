@@ -84,3 +84,53 @@ export async function getSuspiciousIps(minFailures = 5) {
     await session.close();
   }
 }
+
+
+/**
+ * Dashboard statistika
+ */
+export async function getStatistics() {
+  const session = driver.session();
+
+  try {
+
+    // ukupni login attemptovi
+    const totalResult = await session.run(`
+      MATCH (a:LoginAttempt)
+      RETURN count(a) AS total
+    `);
+
+    // neuspesni login attemptovi
+    const failedResult = await session.run(`
+      MATCH (a:LoginAttempt)
+      WHERE a.success = false
+      RETURN count(a) AS failed
+    `);
+
+    // uspesni login attemptovi
+    const successResult = await session.run(`
+      MATCH (a:LoginAttempt)
+      WHERE a.success = true
+      RETURN count(a) AS successful
+    `);
+
+    // suspicious IP count
+    const suspiciousResult = await session.run(`
+      MATCH (i:IP)<-[:FROM_IP]-(a:LoginAttempt)
+      WHERE a.success = false
+      WITH i, count(a) AS failures
+      WHERE failures >= 5
+      RETURN count(i) AS suspiciousIps
+    `);
+
+    return {
+      totalAttempts: totalResult.records[0].get("total").toNumber(),
+      failedAttempts: failedResult.records[0].get("failed").toNumber(),
+      successfulAttempts: successResult.records[0].get("successful").toNumber(),
+      suspiciousIps: suspiciousResult.records[0].get("suspiciousIps").toNumber()
+    };
+
+  } finally {
+    await session.close();
+  }
+}

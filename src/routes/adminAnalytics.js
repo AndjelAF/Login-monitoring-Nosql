@@ -2,7 +2,8 @@ import express from "express";
 import {
   getIpsWithMultipleUsers,
   getUsersWithMultipleIps,
-  getSuspiciousIps
+  getSuspiciousIps,
+  getStatistics
 } from "../services/analysisService.js";
 
 const router = express.Router();
@@ -25,3 +26,19 @@ router.get("/analytics", async (req, res) => {
 });
 
 export default router;
+
+router.get("/stats", async (req, res) => {
+  try {
+
+    const stats = await getStatistics();
+
+    res.json(stats);
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: "Statistics error"
+    });
+  }
+});

@@ -3,34 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin Dashboard</title>
+
   <style>
     body {
       font-family: Arial;
       margin: 40px;
     }
+
     h2 {
       margin-top: 40px;
     }
+
     table {
       border-collapse: collapse;
       width: 100%;
       margin-bottom: 30px;
     }
+
     th, td {
       border: 1px solid #ccc;
       padding: 8px;
       text-align: left;
     }
+
     th {
       background: #f0f0f0;
     }
   </style>
 </head>
+
 <body>
 
 <h1>Admin Dashboard</h1>
 
+<!-- SYSTEM STATISTICS -->
+<h2>System Statistics</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+
+  <tbody id="stats-body"></tbody>
+</table>
+
+
+<!-- BLOCKED LOGINS -->
 <h2>Blocked Logins (Redis)</h2>
+
 <table>
   <thead>
     <tr>
@@ -39,10 +62,14 @@
       <th>TTL (seconds)</th>
     </tr>
   </thead>
+
   <tbody id="blocked-body"></tbody>
 </table>
 
+
+<!-- IPS WITH MULTIPLE USERS -->
 <h2>IPs with Multiple Users (Neo4j)</h2>
+
 <table>
   <thead>
     <tr>
@@ -51,10 +78,14 @@
       <th>User Count</th>
     </tr>
   </thead>
+
   <tbody id="ip-users-body"></tbody>
 </table>
 
+
+<!-- USERS WITH MULTIPLE IPS -->
 <h2>Users with Multiple IPs (Neo4j)</h2>
+
 <table>
   <thead>
     <tr>
@@ -63,10 +94,14 @@
       <th>IP Count</th>
     </tr>
   </thead>
+
   <tbody id="user-ips-body"></tbody>
 </table>
 
+
+<!-- SUSPICIOUS IPS -->
 <h2>Suspicious IPs (Failed Logins)</h2>
+
 <table>
   <thead>
     <tr>
@@ -74,9 +109,11 @@
       <th>Failures</th>
     </tr>
   </thead>
+
   <tbody id="suspicious-body"></tbody>
 </table>
 
 <script src="admin.js"></script>
+
 </body>
 </html>
