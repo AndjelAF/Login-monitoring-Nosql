@@ -1,33 +1,60 @@
 import express from "express";
+
 import {
   getIpsWithMultipleUsers,
   getUsersWithMultipleIps,
   getSuspiciousIps,
-  getStatistics
+  getStatistics,
+  getAttackPatterns
 } from "../services/analysisService.js";
 
 const router = express.Router();
 
+
+// =========================
+// ANALYTICS
+// =========================
+
 router.get("/analytics", async (req, res) => {
+
   try {
-    const ipsWithMultipleUsers = await getIpsWithMultipleUsers();
-    const usersWithMultipleIps = await getUsersWithMultipleIps();
-    const suspiciousIps = await getSuspiciousIps();
+
+    const ipsWithMultipleUsers =
+      await getIpsWithMultipleUsers();
+
+    const usersWithMultipleIps =
+      await getUsersWithMultipleIps();
+
+    const suspiciousIps =
+      await getSuspiciousIps();
+
+    const attackPatterns =
+      await getAttackPatterns();
 
     res.json({
       ipsWithMultipleUsers,
       usersWithMultipleIps,
-      suspiciousIps
+      suspiciousIps,
+      attackPatterns
     });
+
   } catch (err) {
+
     console.error(err);
-    res.status(500).json({ message: "Analytics error" });
+
+    res.status(500).json({
+      message: "Analytics error"
+    });
   }
 });
 
-export default router;
+
+// =========================
+// STATISTIKA
+// =========================
 
 router.get("/stats", async (req, res) => {
+
   try {
 
     const stats = await getStatistics();
@@ -35,6 +62,7 @@ router.get("/stats", async (req, res) => {
     res.json(stats);
 
   } catch (err) {
+
     console.error(err);
 
     res.status(500).json({
@@ -42,3 +70,5 @@ router.get("/stats", async (req, res) => {
     });
   }
 });
+
+export default router;

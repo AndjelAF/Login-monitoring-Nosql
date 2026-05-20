@@ -134,3 +134,77 @@ export async function getStatistics() {
     await session.close();
   }
 }
+
+
+/**
+ * Detekcija attack pattern-a
+ */
+export async function getAttackPatterns() {
+
+  const session = driver.session();
+
+  try {
+
+    const patterns = [];
+
+    // 1. Credential Stuffing
+    const stuffingResult = await session.run(`
+      MATCH (i:IP)<-[:FROM_IP]-(a:LoginAttempt)<-[:ATTEMPTED]-(u:User)
+      WITH i.address AS ip, collect(DISTINCT u.username) AS users
+      WHERE size(users) >= 3
+      RETURN ip, size(users) AS userCount
+      ORDER BY userCount DESC
+    `);
+
+    stuffingResult.records.forEach(r => {
+      patterns.push({
+        type: "Credential Stuffing",
+        target: r.get("ip"),
+        details: `${r.get("userCount").toNumber()} different users`
+      });
+    });
+
+
+    // 2. Brute Force
+    const bruteForceResult = await session.run(`
+      MATCH (i:IP)<-[:FROM_IP]-(a:LoginAttempt)
+      WHERE a.success = false
+      WITH i.address AS ip, count(a) AS failures
+      WHERE failures >= 5
+      RETURN ip, failures
+      ORDER BY failures DESC
+    `);
+
+    bruteForceResult.records.forEach(r => {
+      patterns.push({
+        type: "Brute Force",
+        target: r.get("ip"),
+        details: `${r.get("failures").toNumber()} failed attempts`
+      });
+    });
+
+
+    // 3. Suspicious User Access
+    const suspiciousUsers = await session.run(`
+      MATCH (u:User)-[:ATTEMPTED]->(a:LoginAttempt)-[:FROM_IP]->(i:IP)
+      WITH u.username AS username, collect(DISTINCT i.address) AS ips
+      WHERE size(ips) >= 3
+      RETURN username, size(ips) AS ipCount
+      ORDER BY ipCount DESC
+    `);
+
+    suspiciousUsers.records.forEach(r => {
+      patterns.push({
+        type: "Suspicious User Access",
+        target: r.get("username"),
+        details: `${r.get("ipCount").toNumber()} different IP addresses`
+      });
+    });
+
+    return patterns;
+
+  } finally {
+
+    await session.close();
+  }
+}

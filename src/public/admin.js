@@ -3,29 +3,17 @@ async function loadStatistics() {
   const res = await fetch("/admin/stats");
   const data = await res.json();
 
-  const tbody = document.getElementById("stats-body");
+  document.getElementById("total-attempts")
+    .innerText = data.totalAttempts;
 
-  tbody.innerHTML = `
-    <tr>
-      <td>Total Login Attempts</td>
-      <td>${data.totalAttempts}</td>
-    </tr>
+  document.getElementById("failed-attempts")
+    .innerText = data.failedAttempts;
 
-    <tr>
-      <td>Failed Login Attempts</td>
-      <td>${data.failedAttempts}</td>
-    </tr>
+  document.getElementById("successful-attempts")
+    .innerText = data.successfulAttempts;
 
-    <tr>
-      <td>Successful Login Attempts</td>
-      <td>${data.successfulAttempts}</td>
-    </tr>
-
-    <tr>
-      <td>Suspicious IPs</td>
-      <td>${data.suspiciousIps}</td>
-    </tr>
-  `;
+  document.getElementById("suspicious-ips-count")
+    .innerText = data.suspiciousIps;
 }
 
 
@@ -34,7 +22,8 @@ async function loadBlocked() {
   const res = await fetch("/admin/blocked");
   const data = await res.json();
 
-  const tbody = document.getElementById("blocked-body");
+  const tbody =
+    document.getElementById("blocked-body");
 
   tbody.innerHTML = "";
 
@@ -45,7 +34,11 @@ async function loadBlocked() {
     row.innerHTML = `
       <td>${item.username}</td>
       <td>${item.ip}</td>
-      <td>${item.ttl}</td>
+      <td>
+        <span class="badge badge-warning">
+          ${item.ttl}s
+        </span>
+      </td>
     `;
 
     tbody.appendChild(row);
@@ -58,8 +51,12 @@ async function loadAnalytics() {
   const res = await fetch("/admin/analytics");
   const data = await res.json();
 
+  // =========================
   // IPs with multiple users
-  const ipUsersBody = document.getElementById("ip-users-body");
+  // =========================
+
+  const ipUsersBody =
+    document.getElementById("ip-users-body");
 
   ipUsersBody.innerHTML = "";
 
@@ -70,15 +67,23 @@ async function loadAnalytics() {
     row.innerHTML = `
       <td>${item.ip}</td>
       <td>${item.users.join(", ")}</td>
-      <td>${item.userCount}</td>
+      <td>
+        <span class="badge badge-info">
+          ${item.userCount}
+        </span>
+      </td>
     `;
 
     ipUsersBody.appendChild(row);
   });
 
 
+  // =========================
   // Users with multiple IPs
-  const userIpsBody = document.getElementById("user-ips-body");
+  // =========================
+
+  const userIpsBody =
+    document.getElementById("user-ips-body");
 
   userIpsBody.innerHTML = "";
 
@@ -89,15 +94,23 @@ async function loadAnalytics() {
     row.innerHTML = `
       <td>${item.username}</td>
       <td>${item.ips.join(", ")}</td>
-      <td>${item.ipCount}</td>
+      <td>
+        <span class="badge badge-info">
+          ${item.ipCount}
+        </span>
+      </td>
     `;
 
     userIpsBody.appendChild(row);
   });
 
 
+  // =========================
   // Suspicious IPs
-  const suspiciousBody = document.getElementById("suspicious-body");
+  // =========================
+
+  const suspiciousBody =
+    document.getElementById("suspicious-body");
 
   suspiciousBody.innerHTML = "";
 
@@ -107,10 +120,53 @@ async function loadAnalytics() {
 
     row.innerHTML = `
       <td>${item.ip}</td>
-      <td>${item.failures}</td>
+      <td>
+        <span class="badge badge-danger">
+          ${item.failures}
+        </span>
+      </td>
     `;
 
     suspiciousBody.appendChild(row);
+  });
+
+
+  // =========================
+  // Attack Patterns
+  // =========================
+
+  const attackBody =
+    document.getElementById("attack-patterns-body");
+
+  attackBody.innerHTML = "";
+
+  data.attackPatterns.forEach(item => {
+
+    let badgeClass = "badge-info";
+
+    if (item.type === "Brute Force") {
+      badgeClass = "badge-danger";
+    }
+
+    if (item.type === "Credential Stuffing") {
+      badgeClass = "badge-warning";
+    }
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>
+        <span class="badge ${badgeClass}">
+          ${item.type}
+        </span>
+      </td>
+
+      <td>${item.target}</td>
+
+      <td>${item.details}</td>
+    `;
+
+    attackBody.appendChild(row);
   });
 }
 

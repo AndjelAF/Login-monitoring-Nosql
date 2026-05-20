@@ -1,119 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard</title>
+  <meta charset="UTF-8" />
+  <title>Security Admin Dashboard</title>
 
   <style>
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial;
-      margin: 40px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 30px;
+      color: #38bdf8;
     }
 
     h2 {
       margin-top: 40px;
+      margin-bottom: 15px;
+      color: #f8fafc;
+      font-size: 24px;
+    }
+
+    /* =========================
+       STATISTICS CARDS
+    ========================== */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 14px;
+      border: 1px solid #334155;
+      box-shadow: 0 0 12px rgba(0,0,0,0.25);
+      transition: 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: #38bdf8;
+    }
+
+    .stat-title {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    /* =========================
+       TABLES
+    ========================== */
+
+    .table-container {
+      background: #1e293b;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 35px;
+      border: 1px solid #334155;
+      box-shadow: 0 0 12px rgba(0,0,0,0.2);
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
-      margin-bottom: 30px;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
+      border-collapse: collapse;
     }
 
     th {
-      background: #f0f0f0;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: left;
+      padding: 14px;
+      font-size: 14px;
+      border-bottom: 1px solid #334155;
     }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid #334155;
+      color: #e2e8f0;
+      font-size: 14px;
+    }
+
+    tr:hover {
+      background: #273449;
+    }
+
+    /* =========================
+       BADGES
+    ========================== */
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .badge-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .badge-warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+    }
+
+    .badge-info {
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 768px) {
+
+      body {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      td, th {
+        padding: 10px;
+      }
+    }
+
   </style>
 </head>
 
 <body>
 
-<h1>Admin Dashboard</h1>
+  <h1>Security Monitoring Dashboard</h1>
 
-<!-- SYSTEM STATISTICS -->
-<h2>System Statistics</h2>
+  <!-- =========================
+       SYSTEM STATISTICS
+  ========================== -->
 
-<table>
-  <thead>
-    <tr>
-      <th>Metric</th>
-      <th>Value</th>
-    </tr>
-  </thead>
+  <h2>System Statistics</h2>
 
-  <tbody id="stats-body"></tbody>
-</table>
+  <div class="stats-grid">
 
+    <div class="stat-card">
+      <div class="stat-title">Total Login Attempts</div>
+      <div class="stat-value" id="total-attempts">0</div>
+    </div>
 
-<!-- BLOCKED LOGINS -->
-<h2>Blocked Logins (Redis)</h2>
+    <div class="stat-card">
+      <div class="stat-title">Failed Attempts</div>
+      <div class="stat-value" id="failed-attempts">0</div>
+    </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>IP</th>
-      <th>TTL (seconds)</th>
-    </tr>
-  </thead>
+    <div class="stat-card">
+      <div class="stat-title">Successful Attempts</div>
+      <div class="stat-value" id="successful-attempts">0</div>
+    </div>
 
-  <tbody id="blocked-body"></tbody>
-</table>
+    <div class="stat-card">
+      <div class="stat-title">Suspicious IPs</div>
+      <div class="stat-value" id="suspicious-ips-count">0</div>
+    </div>
 
-
-<!-- IPS WITH MULTIPLE USERS -->
-<h2>IPs with Multiple Users (Neo4j)</h2>
-
-<table>
-  <thead>
-    <tr>
-      <th>IP</th>
-      <th>Users</th>
-      <th>User Count</th>
-    </tr>
-  </thead>
-
-  <tbody id="ip-users-body"></tbody>
-</table>
+  </div>
 
 
-<!-- USERS WITH MULTIPLE IPS -->
-<h2>Users with Multiple IPs (Neo4j)</h2>
+  <!-- =========================
+       BLOCKED LOGINS
+  ========================== -->
 
-<table>
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>IPs</th>
-      <th>IP Count</th>
-    </tr>
-  </thead>
+  <h2>Blocked Logins (Redis)</h2>
 
-  <tbody id="user-ips-body"></tbody>
-</table>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>IP</th>
+          <th>TTL (seconds)</th>
+        </tr>
+      </thead>
+
+      <tbody id="blocked-body"></tbody>
+    </table>
+  </div>
 
 
-<!-- SUSPICIOUS IPS -->
-<h2>Suspicious IPs (Failed Logins)</h2>
+  <!-- =========================
+       IPs WITH MULTIPLE USERS
+  ========================== -->
 
-<table>
-  <thead>
-    <tr>
-      <th>IP</th>
-      <th>Failures</th>
-    </tr>
-  </thead>
+  <h2>IPs with Multiple Users (Neo4j)</h2>
 
-  <tbody id="suspicious-body"></tbody>
-</table>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>IP</th>
+          <th>Users</th>
+          <th>User Count</th>
+        </tr>
+      </thead>
 
-<script src="admin.js"></script>
+      <tbody id="ip-users-body"></tbody>
+    </table>
+  </div>
+
+
+  <!-- =========================
+       USERS WITH MULTIPLE IPS
+  ========================== -->
+
+  <h2>Users with Multiple IPs (Neo4j)</h2>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>IPs</th>
+          <th>IP Count</th>
+        </tr>
+      </thead>
+
+      <tbody id="user-ips-body"></tbody>
+    </table>
+  </div>
+
+
+  <!-- =========================
+       SUSPICIOUS IPS
+  ========================== -->
+
+  <h2>Suspicious IPs (Failed Logins)</h2>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>IP</th>
+          <th>Failures</th>
+        </tr>
+      </thead>
+
+      <tbody id="suspicious-body"></tbody>
+    </table>
+  </div>
+
+
+  <!-- =========================
+       ATTACK PATTERNS
+  ========================== -->
+
+  <h2>Detected Attack Patterns</h2>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Attack Type</th>
+          <th>Target</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+
+      <tbody id="attack-patterns-body"></tbody>
+    </table>
+  </div>
+
+  <script src="admin.js"></script>
 
 </body>
 </html>
