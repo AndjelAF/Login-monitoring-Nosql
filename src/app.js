@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 
 const app = express();
 
-// ovo treba zbog ES modules
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
